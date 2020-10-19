@@ -1,0 +1,17 @@
+{
+    "userId": 1,
+    "userName": "Michelle Vu",
+    "hours": [
+        {
+            "date": "10/10/2020",
+            "workHours": 7,
+            "ptoHours": 1 
+        },
+        {
+            "date": "10/11/2020",
+            "workHours": 8,
+            "ptoHours": null
+        }
+    ]
+    
+}

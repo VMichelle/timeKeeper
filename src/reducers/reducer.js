@@ -1,5 +1,6 @@
 const defaultState = {
-    currentDay: new Date()
+    currentDay: new Date(),
+    selectedWorkWeek: null
 }
 
 function reducer(state = defaultState, action) {

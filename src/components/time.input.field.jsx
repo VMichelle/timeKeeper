@@ -1,20 +1,39 @@
-import React from 'react'
+import React from 'react';
+import * as dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 const TimeInputField = props => {
+    dayjs.extend(localizedFormat);
+
     const { date } = props;
 
-    const updateValue = value => {
+    const updateHour = value => {
+        console.log(value);
+    };
+
+    const updatePto = value => {
         console.log(value);
     }
 
     return (
-        <div style={{fontSize: 12}}>
+        <div className='d-flex flex-column text-center' style={{fontSize: 12}}>
             <div className='border p-1'>
-                {date}
+                {dayjs(date).format('ddd')} - {date}
             </div>
-            <input 
-                onChange={event => updateValue(event.target.value)}
-            />
+            <div>
+                <input
+                    className='border p-1 text-center'
+                    type='number'
+                    onChange={event => updateHour(event.target.value)}
+                />
+            </div>
+            <div>
+                <input
+                    className='border p-1 text-center'
+                    type='number'
+                    onChange={event => updatePto(event.target.value)}
+                />
+            </div>
         </div>
         
     )

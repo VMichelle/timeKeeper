@@ -8,11 +8,11 @@ const TimeInputField = props => {
     const { date } = props;
 
     const updateHour = value => {
-        console.log(value);
+        console.log(value, date);
     };
 
     const updatePto = value => {
-        console.log(value);
+        console.log(value, date);
     }
 
     return (

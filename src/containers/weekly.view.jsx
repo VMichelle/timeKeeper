@@ -6,9 +6,11 @@ import * as dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as firebase from "firebase/app";
 import { firebaseConfig } from '../config';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setEditWeek } from '../reducers/reducer';
 
 const WeeklyView = () => {
+    const dispatch = useDispatch();
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
@@ -20,12 +22,21 @@ const WeeklyView = () => {
     const [selectedDate, setSelectedDate] = useState(dayjs(date).format('YYYY-MM-DD'));
     const [workWeek, setWorkWeek] = useState([])
 
+    db.collection("timeKeeper").doc("userWeeks")
+    .onSnapshot((doc) => {
+        console.log("Current data: ", doc.data());
+    });
+
+    
+
     const onSave = () => {
-        console.log('save clicked');
+        console.log('save clicked', workWeek);
+        db.collection('timeKeeper').add({
+            workWeek
+        })
     };
 
     const onCreate = () => {
-        console.log('onCreate click');
         let daysToAdd = 1;
         let newWorkWeek = [];
 
@@ -36,9 +47,10 @@ const WeeklyView = () => {
         };
 
         setWorkWeek(newWorkWeek);
-        
- 
+        dispatch(setEditWeek({...newWorkWeek}));
     };
+
+
 
     const displayWeek = () => {
         if(workWeek.length === 0) return console.log('no days');
@@ -52,6 +64,14 @@ const WeeklyView = () => {
             {workWeek.map((day, index) => {
                 return <TimeInputField key={index} date={day} />
             })}
+            <div>
+                <div>Total</div>
+                {/* <div>{getTotalHours()}</div>
+                <div>{getTotalPto()}</div> */}
+            </div>
+            <div>
+                {/* {getWeeklyTotal()} */}
+            </div>
         </div>;
     }
 
@@ -76,4 +96,4 @@ const WeeklyView = () => {
 
 export default WeeklyView;
 
-//button to add new week based on start date
+//

@@ -1,9 +1,10 @@
-import { dispatch } from 'react-redux';
-const ACTION = {
-    UPDATE_HOURS: 'UPDATE_HOURS'
-}
+//import { useDispatch } from 'react-redux';
 
-export const updateHours = payload => dispatch({
-    type: ACTION.UPDATE_HOURS,
-    payload
-});
+// const ACTIONS = {
+//     UPDATE_HOURS: 'UPDATE_HOURS'
+// }
+
+// export const updateHours = payload => ({
+//     type: ACTIONS.UPDATE_HOURS,
+//     payload
+// });

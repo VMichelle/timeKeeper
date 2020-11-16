@@ -20,14 +20,13 @@ const WeeklyView = () => {
 
     const date = useSelector(state => state.currentDay);
     const [selectedDate, setSelectedDate] = useState(dayjs(date).format('YYYY-MM-DD'));
-    const [workWeek, setWorkWeek] = useState([])
+    //const [workWeek, setWorkWeek] = useState([]);
+    const editWorkWeek = useSelector(state => state.editWorkWeek);
 
     db.collection("timeKeeper").doc("userWeeks")
     .onSnapshot((doc) => {
-        console.log("Current data: ", doc.data());
+        //console.log("Current data: ", doc.data());
     });
-
-    
 
     const onSave = () => {
         console.log('save clicked', workWeek);
@@ -42,18 +41,31 @@ const WeeklyView = () => {
 
         while (daysToAdd <= 7) {
             let addedDay = dayjs(selectedDate).add(daysToAdd, 'day');
-            newWorkWeek.push(addedDay.format('L'));
+            const date = addedDay.format('L');
+            newWorkWeek.push(date);
             ++daysToAdd;
         };
 
-        setWorkWeek(newWorkWeek);
-        dispatch(setEditWeek({...newWorkWeek}));
+        const weeklyDefault = newWorkWeek.map((day) => {
+            return {date: day, hours: 0, pto: 0};
+        })
+
+        dispatch(setEditWeek(weeklyDefault));
     };
 
+    const getTotalHours = () => {
+        return editWorkWeek.reduce((acc, currValue) => {
+            console.log(acc, currValue.hours);
+            return acc + currValue.hours
+        }, 0)
+    };
 
+    const getTotalPto = () => {
+        return editWorkWeek.reduce((acc, curr) => acc + curr.pto, 0)
+    };
 
     const displayWeek = () => {
-        if(workWeek.length === 0) return console.log('no days');
+        if(editWorkWeek === null) return console.log('no days');
         
         return <div className='d-flex mt-3 p-3'>
             <div className='flex-column' style={{fontSize: 12}}>
@@ -61,15 +73,17 @@ const WeeklyView = () => {
                 <div className='border p-1'>Hours</div>
                 <div className='border p-1'>PTO</div>
             </div>
-            {workWeek.map((day, index) => {
-                return <TimeInputField key={index} date={day} />
+            {editWorkWeek !== null && editWorkWeek.map((day, index) => {
+                return <TimeInputField key={index} date={day.date} />
             })}
-            <div>
-                <div>Total</div>
-                {/* <div>{getTotalHours()}</div>
-                <div>{getTotalPto()}</div> */}
+            <div className='flex-column' style={{fontSize: 12}}>
+                <div className='border p-1'>Total</div>
+                <div className='border p-1'>{getTotalHours()}</div>
+                <div className='border p-1'>{getTotalPto()}</div>
             </div>
-            <div>
+            <div className='flex-column' style={{fontSize: 12}}>
+                <div className='border p-1'>Remaining Hours</div>
+                <div className='border p-1'>{40 - getTotalHours() - getTotalPto()}</div>
                 {/* {getWeeklyTotal()} */}
             </div>
         </div>;

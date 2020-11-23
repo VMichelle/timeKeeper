@@ -4,19 +4,26 @@ import Immutable from 'immutable';
 const defaultState = {
     currentDay: new Date(),
     selectedWorkWeek: null,
+    availableWorkWeek: null,
     editWorkWeek: null
 }
 
 const updateHourByDate = (state, payload) => {
     const editWorkWeek = state.editWorkWeek;
+    const data = state.editWorkWeek.data;
     const {date, type, inputHour} = payload;
-    const newEditWorkWeek = editWorkWeek.map(day => {
+    const newData = data.map(day => {
         if (day.date === date) {
             return {...day, [type]: +inputHour};
         }
 
         return day;
     });
+
+    const newEditWorkWeek = {
+        ...editWorkWeek,
+        data: newData
+    };
 
     return Immutable.merge(state, {editWorkWeek: newEditWorkWeek});
     //return {...state, editWorkWeek: editWorkWeek}
@@ -29,6 +36,8 @@ export function reducer(state = defaultState, {type, payload}) {
             return {...state, editWorkWeek: payload};
         case CONSTANTS.UPDATE_HOURS:
             return updateHourByDate(state, payload);
+        case CONSTANTS.SET_AVAIL_WEEK:
+            return Immutable.set('availableWorkWeek', payload);
         default: return state;
     }
 };

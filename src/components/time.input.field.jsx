@@ -23,24 +23,20 @@ const TimeInputField = props => {
     }
 
     return (
-        <div className='d-flex flex-column text-center' style={{fontSize: 12}}>
-            <div className='border p-1'>
-                {dayjs(date).format('ddd')} - {dayjs(date).format('MM/DD')}
+        <div className='d-flex flex-column text-center' style={{fontSize: 12, width: 75}}>
+            <div className='border p-1' style={{height: 50}}>
+                {dayjs(date).format('ddd')} <br /> {dayjs(date).format('MM/DD')}
             </div>
-            <div>
-                <input
-                    className='border p-1 text-center'
-                    type='number'
-                    onChange={event => updateHour(event.target.value, 'hours')}
-                />
-            </div>
-            <div>
-                <input
-                    className='border p-1 text-center'
-                    type='number'
-                    onChange={event => updatePto(event.target.value, 'pto')}
-                />
-            </div>
+            <input
+                className='border p-1 text-center'
+                type='number'
+                onChange={event => updateHour(event.target.value, 'hours')}
+            />
+            <input
+                className='border p-1 text-center'
+                type='number'
+                onChange={event => updatePto(event.target.value, 'pto')}
+            /> 
         </div>
         
     )

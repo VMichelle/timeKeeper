@@ -9,7 +9,7 @@ const TimeInputField = props => {
     const dispatch = useDispatch();
     dayjs.extend(localizedFormat);
 
-    const { date } = props;
+    const { date, day } = props;
 
 
     const updateHour = (value, inputType) => {
@@ -28,11 +28,13 @@ const TimeInputField = props => {
                 {dayjs(date).format('ddd')} <br /> {dayjs(date).format('MM/DD')}
             </div>
             <input
+                value={day.hours ? day.hours : ''}
                 className='border p-1 text-center'
                 type='number'
                 onChange={event => updateHour(event.target.value, 'hours')}
             />
             <input
+                value={day.pto ? day.pto : ''}
                 className='border p-1 text-center'
                 type='number'
                 onChange={event => updatePto(event.target.value, 'pto')}

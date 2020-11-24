@@ -4,7 +4,7 @@ import Immutable from 'immutable';
 const defaultState = {
     currentDay: new Date(),
     selectedWorkWeek: null,
-    availableWorkWeek: null,
+    availableWorkWeeks: null,
     editWorkWeek: null
 }
 
@@ -26,18 +26,19 @@ const updateHourByDate = (state, payload) => {
     };
 
     return Immutable.merge(state, {editWorkWeek: newEditWorkWeek});
-    //return {...state, editWorkWeek: editWorkWeek}
 }
 
 //Reducer
 export function reducer(state = defaultState, {type, payload}) {
     switch(type) {
         case CONSTANTS.SET_EDIT_WEEK:
-            return {...state, editWorkWeek: payload};
+            return Immutable.set(state, 'editWorkWeek', payload);
         case CONSTANTS.UPDATE_HOURS:
             return updateHourByDate(state, payload);
-        case CONSTANTS.SET_AVAIL_WEEK:
-            return Immutable.set('availableWorkWeek', payload);
+        case CONSTANTS.SET_AVAIL_WEEKS:
+            return Immutable.set(state, 'availableWorkWeeks', payload);
+        case CONSTANTS.SET_SELECTED_WEEK:
+            return Immutable.set(state, 'selectedWorkWeek', payload);
         default: return state;
     }
 };
@@ -46,7 +47,9 @@ export default reducer;
 
 const CONSTANTS = {
     UPDATE_HOURS: 'UPDATE_HOURS',
-    SET_EDIT_WEEK: 'SET_EDIT_WEEK'
+    SET_EDIT_WEEK: 'SET_EDIT_WEEK',
+    SET_AVAIL_WEEKS: 'SET_AVAIL_WEEKS',
+    SET_SELECTED_WEEK: 'SET_SELECTED_WEEK'
 }
 
 export const updateHours = payload => ({
@@ -57,4 +60,14 @@ export const updateHours = payload => ({
 export const setEditWeek = data => ({
     type: CONSTANTS.SET_EDIT_WEEK,
     payload: data
+})
+
+export const setAvailableWeeks = payload => ({
+    type: CONSTANTS.SET_AVAIL_WEEKS,
+    payload
+})
+
+export const setSelectedWeek = payload => ({
+    type: CONSTANTS.SET_SELECTED_WEEK,
+    payload
 })

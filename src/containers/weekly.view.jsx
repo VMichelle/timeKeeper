@@ -118,12 +118,16 @@ const WeeklyView = () => {
 
     const getSelectedWeek = selectedStartDate => {
         console.log(selectedStartDate);
+        if(selectedStartDate == 'resetToDefault') {
+            return dispatch(setEditWeek(null));
+        }
+
         db.collection("timeKeeper").where('startDate', '==', selectedStartDate).get()
         .then(querySnapshot => {
             let selectedWeek = []
             querySnapshot.forEach(doc => selectedWeek.push(doc.data()));
             dispatch(setSelectedWeek(selectedWeek));
-            dispatch(setEditWeek(selectedWeek.pop()));
+            dispatch(setEditWeek(selectedWeek[0]));
         })  
     }
 
@@ -133,7 +137,7 @@ const WeeklyView = () => {
                 className="form-control"
                 onChange={e => getSelectedWeek(e.target.value)}
             >
-                <option key='00'>Select an existing work week</option>
+                <option key='00' value='resetToDefault'>Select an existing work week</option>
                 {availableWorkWeeks.map((week, index) => {
                     console.log(week.id);
                     const startDateFormatted = dayjs(week.startDate).format('L');

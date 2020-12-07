@@ -6,7 +6,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as firebase from "firebase/app";
 import { firebaseConfig } from '../config';
 import { useSelector, useDispatch } from 'react-redux';
-import { setEditWeek, setAvailableWeeks, setSelectedWeek } from '../reducers/reducer';
+import { setEditWeek, setAvailableWeeks, setSelectedWeek, setChargeCodes } from '../reducers/reducer';
 //import { DropdownButton, Dropdown } from 'react-bootstrap'
 
 const WeeklyView = () => {
@@ -23,31 +23,61 @@ const WeeklyView = () => {
     const date = useSelector(state => state.currentDay);
     const [selectedDate, setSelectedDate] = useState(dayjs(date).format('YYYY-MM-DD'));
     const editWorkWeek = useSelector(state => state.editWorkWeek);
-    const {selectedWorkWeek, availableWorkWeeks} = useSelector(state => state);
+    const {selectedWorkWeek, availableWorkWeeks, chargeCodes, editChargeCodes} = useSelector(state => state);
+    const [showCreateWeek, setShowCreateWeek] = useState(false);
+    const [selectedChargeCode, setSelectedChargeCode] = useState(null);
     
     useEffect(() => {
-        fetchWeeks()       
+        Promise.all([
+            fetchWeeks(),
+            fetchChargecodes()
+        ])
+            
+        
     }, [])
 
     const fetchWeeks = () => {
-        db.collection("timeKeeper")
-        .onSnapshot(querySnapshot => {
+        return new Promise((resolve, reject) => {
+            db.collection("timeKeeper")
+            .onSnapshot(querySnapshot => {
             let availWeeks = []
+
             querySnapshot.forEach(doc => availWeeks.push(doc.data()));
+            availWeeks.sort((a, b) => a.startDate - b.startDate);
             dispatch(setAvailableWeeks(availWeeks));
+            resolve(true);
+            })
+        }).catch(err => {
+
+        })
+        
+    };
+
+    const fetchChargecodes = () => {
+        db.collection("chargeCodes").doc('mvu')
+        .onSnapshot(querySnapshot => {
+            console.log(querySnapshot);
+            dispatch(setChargeCodes(querySnapshot.data()));
         })
     }
 
+    const checkForExisitingWeek = date => {
+        const hasExistingWeek = availableWorkWeeks.find(week => {
+            return dayjs(date).isSame(dayjs(week.startDate));
+        })
+
+        return hasExistingWeek;
+    }
+
     const onSave = () => {
-        //console.log('save clicked', editWorkWeek);
         const docName = dayjs(selectedDate).format('MMDDYYYY');
-        console.log(docName);
+
         db.collection('timeKeeper').doc(docName).set({
             ...editWorkWeek
         }, {merge: true})
         .then(function() {
             fetchWeeks();
-            console.log("Document successfully written!");
+            alert("Document successfully written!");
         })
         .catch(function(error) {
             console.error("Error writing document: ", error);
@@ -55,7 +85,13 @@ const WeeklyView = () => {
     };
 
     const onCreate = () => {
-        let daysToAdd = 1;
+                
+        const hasExistingWeek = checkForExisitingWeek(selectedDate);
+        if (hasExistingWeek) {
+            return alert('Week already exists');
+        };
+
+        let daysToAdd = 0;
         let newWorkWeek = [];
 
         while (daysToAdd <= 7) {
@@ -139,30 +175,72 @@ const WeeklyView = () => {
             >
                 <option key='00' value='resetToDefault'>Select an existing work week</option>
                 {availableWorkWeeks.map((week, index) => {
-                    console.log(week.id);
                     const startDateFormatted = dayjs(week.startDate).format('L');
                     const endDateFormatted = dayjs(week.endDate).format('L');
                     return <option key={index} value={week.startDate}>{`${startDateFormatted} - ${endDateFormatted}`}</option>
                 })}
             </select>
         )
+    };
+
+    const chargeCodeDropdown = () => {
+        const {codes} = chargeCodes;
+
+        return <>
+            <select className='form-control mt-2' onChange={e => setSelectedChargeCode(e.target.value)}>
+                <option key='00' value='custom'>Custom</option>
+                {codes.map((code, index) => {
+                    return <option key={index} value={code}>{code}</option>
+                })}
+            </select>
+        </>
+    };
+
+    const displayEditChargeCodes = () => {
+        return editChargeCodes.map(code => {
+            return <div>
+                <div>{code}</div>
+                <button>Delete</button>
+            </div>
+        })
+    };
+
+    const addEditChargecode = () => {
+        //set edit charge code to redux, in array of objects with id?
+    };
+
+    const displayCreateWeek = () => {
+        return <div className='p-4 border-bottom mb-4'>
+            <label>Start Date: </label>
+            <div className='d-flex flex-column'>
+                <input
+                    type='date'
+                    value={selectedDate}
+                    onChange={value => setSelectedDate(value.target.value)}
+                    className='ml-2'
+                    />
+                <div className='mt-2'>Add Charge Code:</div>
+                <div className='d-flex'>
+                    {chargeCodeDropdown()}
+                    <button className='px-4 ml-3' onClick={() => addEditChargecode(selectedChargeCode)}>Add</button>
+                </div>
+                {editChargeCodes && displayEditChargeCodes()}
+                
+            </div>
+            
+
+            <button onClick={onCreate} className='mx-2'>Create</button>
+            <button className='m-2' onClick={onSave}>Save</button>
+        </div>
     }
 
     return (
         <div className='p-3 d-flex flex-column'>
             <div>Today: {dayjs(date).format('L').toString()}</div>
-            <div>{availableWorkWeeks && displayDropDown()}</div>
-            <div>
-                <label>Select start date for work week: </label>
-                <input
-                    type='date'
-                    value={selectedDate}
-                    onChange={value => setSelectedDate(value.target.value)}
-                />
-                <button onClick={onCreate}>Create</button>
-                <button className='m-2' onClick={onSave}>Save</button>
-            </div>
-            
+            <button onClick={() => setShowCreateWeek(!showCreateWeek)} className='mb-4'>Create New Week</button>
+            {showCreateWeek && displayCreateWeek()}
+
+            <div>{availableWorkWeeks && displayDropDown()}</div>            
             {displayWeek()}
             {displaySelectedWeek()}
         </div>
@@ -176,3 +254,7 @@ export default WeeklyView;
     //
 
     //intead of hours and pto, make it a configurable array
+
+    //check if week exists before saving a newly created week
+    //ordering list
+    //allow for custom charge codes

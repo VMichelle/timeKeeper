@@ -43,6 +43,8 @@ export function reducer(state = defaultState, {type, payload}) {
             return Immutable.set(state, 'selectedWorkWeek', payload);
         case CONSTANTS.SET_CHARGE_CODES:
             return Immutable.set(state, 'chargeCodes', payload);
+        case CONSTANTS.SET_EDIT_CHARGE_CODES:
+            return Immutable.set(state, 'editChargeCodes', payload);
         default: return state;
     }
 };
@@ -54,7 +56,8 @@ const CONSTANTS = {
     SET_EDIT_WEEK: 'SET_EDIT_WEEK',
     SET_AVAIL_WEEKS: 'SET_AVAIL_WEEKS',
     SET_SELECTED_WEEK: 'SET_SELECTED_WEEK',
-    SET_CHARGE_CODES: 'SET_CHARGE_CODES'
+    SET_CHARGE_CODES: 'SET_CHARGE_CODES',
+    SET_EDIT_CHARGE_CODES: 'SET_EDIT_CHARGE_CODES'
 };
 
 export const updateHours = payload => ({
@@ -79,5 +82,10 @@ export const setSelectedWeek = payload => ({
 
 export const setChargeCodes = payload => ({
     type: CONSTANTS.SET_CHARGE_CODES,
+    payload
+});
+
+export const setEditChargeCodes = payload => ({
+    type: CONSTANTS.SET_EDIT_CHARGE_CODES,
     payload
 });

@@ -6,8 +6,14 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as firebase from "firebase/app";
 import { firebaseConfig } from '../config';
 import { useSelector, useDispatch } from 'react-redux';
-import { setEditWeek, setAvailableWeeks, setSelectedWeek, setChargeCodes } from '../reducers/reducer';
-//import { DropdownButton, Dropdown } from 'react-bootstrap'
+import {
+    setEditWeek,
+    setAvailableWeeks,
+    setSelectedWeek,
+    setChargeCodes,
+    setEditChargeCodes
+} from '../reducers/reducer';
+import CreateNewWeek from './create.new.week';
 
 const WeeklyView = () => {
     const dispatch = useDispatch();
@@ -21,98 +27,103 @@ const WeeklyView = () => {
     dayjs.extend(localizedFormat);
 
     const date = useSelector(state => state.currentDay);
-    const [selectedDate, setSelectedDate] = useState(dayjs(date).format('YYYY-MM-DD'));
+    // const [selectedDate, setSelectedDate] = useState(dayjs(date).format('YYYY-MM-DD'));
     const editWorkWeek = useSelector(state => state.editWorkWeek);
-    const {selectedWorkWeek, availableWorkWeeks, chargeCodes, editChargeCodes} = useSelector(state => state);
+    const {selectedWorkWeek, availableWorkWeeks, 
+        //chargeCodes, editChargeCodes
+    } = useSelector(state => state);
     const [showCreateWeek, setShowCreateWeek] = useState(false);
-    const [selectedChargeCode, setSelectedChargeCode] = useState(null);
+    // const [selectedChargeCode, setSelectedChargeCode] = useState(null);
+    // const [editChargeCodeList, setEditChargeCodeList] = useState([]);
     
     useEffect(() => {
         Promise.all([
             fetchWeeks(),
             fetchChargecodes()
         ])
-            
-        
     }, [])
 
-    const fetchWeeks = () => {
-        return new Promise((resolve, reject) => {
-            db.collection("timeKeeper")
-            .onSnapshot(querySnapshot => {
-            let availWeeks = []
+    const fetchWeeks = async () => {
+        try {
+            return new Promise(resolve => {
+                db.collection("timeKeeper")
+                    .onSnapshot(querySnapshot => {
+                        let availWeeks = [];
 
-            querySnapshot.forEach(doc => availWeeks.push(doc.data()));
-            availWeeks.sort((a, b) => a.startDate - b.startDate);
-            dispatch(setAvailableWeeks(availWeeks));
-            resolve(true);
-            })
-        }).catch(err => {
-
-        })
+                        querySnapshot.forEach(doc => availWeeks.push(doc.data()));
+                        availWeeks.sort((a, b) => a.startDate - b.startDate);
+                        dispatch(setAvailableWeeks(availWeeks));
+                        resolve(true);
+                    });
+            });
+        } catch (err) {
+            console.log(err);
+        }
         
     };
 
-    const fetchChargecodes = () => {
-        db.collection("chargeCodes").doc('mvu')
+   const fetchChargecodes = () => {
+        db.collection("chargeCodes")
         .onSnapshot(querySnapshot => {
             console.log(querySnapshot);
-            dispatch(setChargeCodes(querySnapshot.data()));
+            const listOfChargeCodes = [];
+            querySnapshot.forEach(code => listOfChargeCodes.push(code.data()));
+            dispatch(setChargeCodes(listOfChargeCodes));
         })
-    }
+    } 
 
-    const checkForExisitingWeek = date => {
-        const hasExistingWeek = availableWorkWeeks.find(week => {
-            return dayjs(date).isSame(dayjs(week.startDate));
-        })
+    // const checkForExisitingWeek = date => {
+    //     const hasExistingWeek = availableWorkWeeks.find(week => {
+    //         return dayjs(date).isSame(dayjs(week.startDate));
+    //     })
 
-        return hasExistingWeek;
-    }
+    //     return hasExistingWeek;
+    // }
 
-    const onSave = () => {
-        const docName = dayjs(selectedDate).format('MMDDYYYY');
+    // const onSave = () => {
+    //     const docName = dayjs(selectedDate).format('MMDDYYYY');
 
-        db.collection('timeKeeper').doc(docName).set({
-            ...editWorkWeek
-        }, {merge: true})
-        .then(function() {
-            fetchWeeks();
-            alert("Document successfully written!");
-        })
-        .catch(function(error) {
-            console.error("Error writing document: ", error);
-        });
-    };
+    //     db.collection('timeKeeper').doc(docName).set({
+    //         ...editWorkWeek
+    //     }, {merge: true})
+    //     .then(function() {
+    //         fetchWeeks();
+    //         alert("Document successfully written!");
+    //     })
+    //     .catch(function(error) {
+    //         console.error("Error writing document: ", error);
+    //     });
+    // };
 
-    const onCreate = () => {
+    // const onCreate = () => {
                 
-        const hasExistingWeek = checkForExisitingWeek(selectedDate);
-        if (hasExistingWeek) {
-            return alert('Week already exists');
-        };
+    //     const hasExistingWeek = checkForExisitingWeek(selectedDate);
+    //     if (hasExistingWeek) {
+    //         return alert('Week already exists');
+    //     };
 
-        let daysToAdd = 0;
-        let newWorkWeek = [];
+    //     let daysToAdd = 0;
+    //     let newWorkWeek = [];
 
-        while (daysToAdd <= 7) {
-            let addedDay = dayjs(selectedDate).add(daysToAdd, 'day');
-            const date = addedDay.format('L');
-            newWorkWeek.push(date);
-            ++daysToAdd;
-        };
+    //     while (daysToAdd <= 7) {
+    //         let addedDay = dayjs(selectedDate).add(daysToAdd, 'day');
+    //         const date = addedDay.format('L');
+    //         newWorkWeek.push(date);
+    //         ++daysToAdd;
+    //     };
 
-        const weeklyDefault = newWorkWeek.map((day) => {
-            return {date: day, hours: 0, pto: 0};
-        })
+    //     const weeklyDefault = newWorkWeek.map((day) => {
+    //         return {date: day, hours: 0, pto: 0};
+    //     })
 
-        const editWorkWeek = {
-            startDate: dayjs(selectedDate).format(),
-            endDate: dayjs(selectedDate).add(7, 'day').format(),
-            data: weeklyDefault
-        }
+    //     const editWorkWeek = {
+    //         startDate: dayjs(selectedDate).format(),
+    //         endDate: dayjs(selectedDate).add(7, 'day').format(),
+    //         data: weeklyDefault
+    //     }
 
-        dispatch(setEditWeek(editWorkWeek));
-    };
+    //     dispatch(setEditWeek(editWorkWeek));
+    // };
 
     const getTotalHours = () => {
         return editWorkWeek.data.reduce((acc, currValue) => {
@@ -125,7 +136,7 @@ const WeeklyView = () => {
     };
 
     const displayWeek = () => {
-        if(editWorkWeek === null) return console.log('no days');
+        if(editWorkWeek === null) return;
         
         return <div className='d-flex mt-3 p-3'>
             <div className='flex-column' style={{fontSize: 12, height: 50, width: 75}}>
@@ -183,55 +194,75 @@ const WeeklyView = () => {
         )
     };
 
-    const chargeCodeDropdown = () => {
-        const {codes} = chargeCodes;
+    // const chargeCodeDropdown = () => {
 
-        return <>
-            <select className='form-control mt-2' onChange={e => setSelectedChargeCode(e.target.value)}>
-                <option key='00' value='custom'>Custom</option>
-                {codes.map((code, index) => {
-                    return <option key={index} value={code}>{code}</option>
-                })}
-            </select>
-        </>
-    };
+    //     return <>
+    //         <select className='form-control mt-2' onChange={e => setSelectedChargeCode(e.target.value)}>
+    //             <option key='00' value='custom'>Custom</option>
+    //             {chargeCodes.map((code, index) => {
+    //                 const { name } = code;
+    //                 return <option key={index} value={name}>{name}</option>
+    //             })}
+    //         </select>
+    //     </>
+    // };
 
-    const displayEditChargeCodes = () => {
-        return editChargeCodes.map(code => {
-            return <div>
-                <div>{code}</div>
-                <button>Delete</button>
-            </div>
-        })
-    };
+    // const displayEditChargeCodes = () => {
+    //     if(!editChargeCodeList) return;
 
-    const addEditChargecode = () => {
-        //set edit charge code to redux, in array of objects with id?
-    };
+    //     return editChargeCodeList.map((code, index) => {
+    //         //console.log(code);
+    //         if(code === null || code === 'custom') {
+    //             return <div key={index} className='d-flex mt-2'>
+    //                 <input
+    //                     type='text'
+    //                     onChange={event => console.log(event.target.value)}
+    //                 />
+    //                 <button>X</button>
+    //             </div>
+    //         }
+    //         return <div key={index} className='d-flex mt-2'>
+    //             <input value={code} disabled />
+    //             <button onClick={() => removeChargeCode(code)}>X</button>
+    //         </div>
+    //     })
+    // };
+
+    // const removeChargeCode = chargeCodeName => {
+    //     //console.log(index);
+    //     const newList = editChargeCodeList.filter(item => item !== chargeCodeName)
+    //     setEditChargeCodeList(newList);
+    // };
+
+    // const addEditChargecode = chargeCode => {
+    //     console.log(chargeCode);
+    //     setEditChargeCodeList([...editChargeCodeList, chargeCode]);
+    //     console.log(editChargeCodeList);
+    // };
 
     const displayCreateWeek = () => {
-        return <div className='p-4 border-bottom mb-4'>
-            <label>Start Date: </label>
-            <div className='d-flex flex-column'>
-                <input
-                    type='date'
-                    value={selectedDate}
-                    onChange={value => setSelectedDate(value.target.value)}
-                    className='ml-2'
-                    />
-                <div className='mt-2'>Add Charge Code:</div>
-                <div className='d-flex'>
-                    {chargeCodeDropdown()}
-                    <button className='px-4 ml-3' onClick={() => addEditChargecode(selectedChargeCode)}>Add</button>
-                </div>
-                {editChargeCodes && displayEditChargeCodes()}
+        return <CreateNewWeek />
+        // return <div className='p-4 border-bottom mb-4'>
+        //     <label>Start Date: </label>
+        //     <div className='d-flex flex-column'>
+        //         <input
+        //             type='date'
+        //             value={selectedDate}
+        //             onChange={value => setSelectedDate(value.target.value)}
+        //             className='ml-2'
+        //             />
+        //         <div className='mt-2'>Add Charge Code:</div>
+        //         <div className='d-flex'>
+        //             {chargeCodeDropdown()}
+        //             <button className='px-4 ml-3' onClick={() => addEditChargecode(selectedChargeCode)}>Add</button>
+        //         </div>
+        //         {editChargeCodeList && displayEditChargeCodes()}
                 
-            </div>
-            
+        //     </div> 
 
-            <button onClick={onCreate} className='mx-2'>Create</button>
-            <button className='m-2' onClick={onSave}>Save</button>
-        </div>
+        //     <button onClick={onCreate} className='mx-2'>Create</button>
+        //     <button className='m-2' onClick={onSave}>Save</button>
+        // </div>
     }
 
     return (

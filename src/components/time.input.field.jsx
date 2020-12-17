@@ -11,7 +11,6 @@ const TimeInputField = props => {
 
     const { date, day } = props;
 
-
     const updateHour = (value, inputType) => {
         console.log(value, date);
         dispatch(updateHours({date, type: inputType, inputHour: value}))
@@ -27,12 +26,16 @@ const TimeInputField = props => {
             <div className='border p-1' style={{height: 50}}>
                 {dayjs(date).format('ddd')} <br /> {dayjs(date).format('MM/DD')}
             </div>
-            <input
-                value={day.hours ? day.hours : ''}
-                className='border p-1 text-center'
-                type='number'
-                onChange={event => updateHour(event.target.value, 'hours')}
-            />
+
+            {day.hours.map(item => {
+                return <input
+                    value={item.hours ? item.hours : ''}
+                    className='border p-1 text-center'
+                    type='number'
+                    onChange={event => updateHour(event.target.value, 'hours')}
+                />
+            })}
+            
             <input
                 value={day.pto ? day.pto : ''}
                 className='border p-1 text-center'

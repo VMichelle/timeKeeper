@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
     setEditWeek
 } from '../reducers/reducer';
+import { Button } from 'react-bootstrap';
 
 const CreateNewWeek = () => {
     const dispatch = useDispatch();
@@ -31,7 +32,7 @@ const CreateNewWeek = () => {
         
         return <>
             <select className='form-control' onChange={e => setSelectedChargeCode(e.target.value)}>
-                {/* <option key='00' value='custom'>Custom</option> */}
+                <option key='00'>Select a charge code</option>
                 {chargeCodes.map((code, index) => {
                     const { name } = code;
                     return <option key={index} value={name}>{name}</option>
@@ -41,13 +42,15 @@ const CreateNewWeek = () => {
     };
 
     const addEditChargecode = chargeCode => {
-        console.log(chargeCode);
+        if(!chargeCode) return;
+
+        const hasExisting = editChargeCodeList.some(code => code.toLowerCase() === chargeCode.toLowerCase());
+        if(hasExisting) return alert('Cannot add duplicate charge code');
+
         setEditChargeCodeList([...editChargeCodeList, chargeCode]);
-        //console.log(editChargeCodeList);
     };
 
     const removeChargeCode = chargeCodeName => {
-        //console.log(index);
         const newList = editChargeCodeList.filter(item => item !== chargeCodeName)
         setEditChargeCodeList(newList);
     };
@@ -56,20 +59,12 @@ const CreateNewWeek = () => {
         if(!editChargeCodeList) return;
 
         return editChargeCodeList.map((code, index) => {
-            // //console.log(code);
-            // if(code === null || code === 'custom') {
-            //     return <div key={index} className='d-flex mt-2'>
-            //         <input
-            //             type='text'
-            //             value={editChargeCodeList[index] ? editChargeCodeList[index] : ''}
-            //             onChange={event => updateCustomCode(index, event.target.value)}
-            //         />
-            //         <button onClick={() => removeChargeCode(code)}>X</button>
-            //     </div>
-            // }
             return <div key={index} className='d-flex mt-2'>
-                <input value={code} disabled />
-                <button onClick={() => removeChargeCode(code)}>X</button>
+                <Button
+                    size='sm'
+                    onClick={() => removeChargeCode(code)}
+                    variant='outline-danger'>X</Button>
+                <div className='pl-3'>{code}</div>  
             </div>
         })
     };
@@ -81,7 +76,6 @@ const CreateNewWeek = () => {
             ...editWorkWeek
         }, {merge: true})
         .then(function() {
-            //fetchWeeks();
             alert("Document successfully written!");
         })
         .catch(function(error) {
@@ -103,18 +97,21 @@ const CreateNewWeek = () => {
         let daysToAdd = 0;
         let newWorkWeek = [];
 
-        while (daysToAdd <= 7) {
+        while (daysToAdd < 7) {
             let addedDay = dayjs(selectedDate).add(daysToAdd, 'day');
             const date = addedDay.format('L');
             newWorkWeek.push(date);
             ++daysToAdd;
         };
 
-        const weeklyDefault = newWorkWeek.map((day) => {
-            return editChargeCodeList.map(code => {
-                return {[code]: 0}
-            })
-            //return {date: day, hours: 0, pto: 0};
+        const defaultHours = [];
+        
+        editChargeCodeList.forEach(item => {
+            defaultHours.push({chargeCodeName: item, hours: 0})
+        });
+
+        const weeklyDefault = newWorkWeek.map(day => {
+            return {date: day, hours: defaultHours}
         })
 
         const editWorkWeek = {

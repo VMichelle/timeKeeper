@@ -11,7 +11,7 @@ import {
     setAvailableWeeks,
     setSelectedWeek,
     setChargeCodes,
-    setEditChargeCodes
+    //setEditChargeCodes
 } from '../reducers/reducer';
 import CreateNewWeek from './create.new.week';
 
@@ -20,21 +20,19 @@ const WeeklyView = () => {
 
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
-    }
+    };
     
     require("firebase/firestore");
     const db = firebase.firestore();
     dayjs.extend(localizedFormat);
 
     const date = useSelector(state => state.currentDay);
-    // const [selectedDate, setSelectedDate] = useState(dayjs(date).format('YYYY-MM-DD'));
     const editWorkWeek = useSelector(state => state.editWorkWeek);
-    const {selectedWorkWeek, availableWorkWeeks, 
-        //chargeCodes, editChargeCodes
+    const {
+        selectedWorkWeek,
+        availableWorkWeeks, 
     } = useSelector(state => state);
     const [showCreateWeek, setShowCreateWeek] = useState(false);
-    // const [selectedChargeCode, setSelectedChargeCode] = useState(null);
-    // const [editChargeCodeList, setEditChargeCodeList] = useState([]);
     
     useEffect(() => {
         Promise.all([
@@ -72,59 +70,6 @@ const WeeklyView = () => {
         })
     } 
 
-    // const checkForExisitingWeek = date => {
-    //     const hasExistingWeek = availableWorkWeeks.find(week => {
-    //         return dayjs(date).isSame(dayjs(week.startDate));
-    //     })
-
-    //     return hasExistingWeek;
-    // }
-
-    // const onSave = () => {
-    //     const docName = dayjs(selectedDate).format('MMDDYYYY');
-
-    //     db.collection('timeKeeper').doc(docName).set({
-    //         ...editWorkWeek
-    //     }, {merge: true})
-    //     .then(function() {
-    //         fetchWeeks();
-    //         alert("Document successfully written!");
-    //     })
-    //     .catch(function(error) {
-    //         console.error("Error writing document: ", error);
-    //     });
-    // };
-
-    // const onCreate = () => {
-                
-    //     const hasExistingWeek = checkForExisitingWeek(selectedDate);
-    //     if (hasExistingWeek) {
-    //         return alert('Week already exists');
-    //     };
-
-    //     let daysToAdd = 0;
-    //     let newWorkWeek = [];
-
-    //     while (daysToAdd <= 7) {
-    //         let addedDay = dayjs(selectedDate).add(daysToAdd, 'day');
-    //         const date = addedDay.format('L');
-    //         newWorkWeek.push(date);
-    //         ++daysToAdd;
-    //     };
-
-    //     const weeklyDefault = newWorkWeek.map((day) => {
-    //         return {date: day, hours: 0, pto: 0};
-    //     })
-
-    //     const editWorkWeek = {
-    //         startDate: dayjs(selectedDate).format(),
-    //         endDate: dayjs(selectedDate).add(7, 'day').format(),
-    //         data: weeklyDefault
-    //     }
-
-    //     dispatch(setEditWeek(editWorkWeek));
-    // };
-
     const getTotalHours = () => {
         return editWorkWeek.data.reduce((acc, currValue) => {
             return acc + currValue.hours
@@ -141,8 +86,9 @@ const WeeklyView = () => {
         return <div className='d-flex mt-3 p-3'>
             <div className='flex-column' style={{fontSize: 12, height: 50, width: 75}}>
                 <div className='border p-1' style={{height: 50}}>Date</div>
-                <div className='border p-1'>Hours</div>
-                <div className='border p-1'>PTO</div>
+                {editWorkWeek.data[0].hours.map(item => {
+                    return <div className='border p-1'>{item.chargeCodeName}</div>
+                })}
             </div>
             {editWorkWeek.data.map((day, index) => {
                 return <TimeInputField key={index} date={day.date} day={day} />

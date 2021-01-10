@@ -11,23 +11,14 @@ const defaultState = {
 }
 
 const updateHourByDate = (state, payload) => {
-    const editWorkWeek = state.editWorkWeek;
+    //const editWorkWeek = state.editWorkWeek;
     const data = state.editWorkWeek.data;
     const {date, type, inputHour} = payload;
-    const newData = data.map(day => {
-        if (day.date === date) {
-            return {...day, [type]: +inputHour};
-        }
+    
+    const indexOfDate = data.findIndex(item => item.date === date);
+    const indexOfHour = data[0].hours.findIndex(item => item.chargeCodeName === type);
 
-        return day;
-    });
-
-    const newEditWorkWeek = {
-        ...editWorkWeek,
-        data: newData
-    };
-
-    return Immutable.merge(state, {editWorkWeek: newEditWorkWeek});
+    return Immutable.setIn(state, ['editWorkWeek', 'data', `${[indexOfDate]}`, 'hours', `${[indexOfHour]}`, 'hours'], inputHour);
 };
 
 //Reducer

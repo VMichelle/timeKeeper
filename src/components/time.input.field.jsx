@@ -9,17 +9,12 @@ const TimeInputField = props => {
     const dispatch = useDispatch();
     dayjs.extend(localizedFormat);
 
-    const { date, day } = props;
+    const { day } = props;
+    const { date } = day;
 
     const updateHour = (value, inputType) => {
-        console.log(value, date);
-        dispatch(updateHours({date, type: inputType, inputHour: value}))
+        dispatch(updateHours({date: date, type: inputType, inputHour: value}))
     };
-
-    const updatePto = (value, inputType) => {
-        console.log(value, date);
-        dispatch(updateHours({date, type: inputType, inputHour: value}))
-    }
 
     return (
         <div className='d-flex flex-column text-center' style={{fontSize: 12, width: 75}}>
@@ -27,21 +22,15 @@ const TimeInputField = props => {
                 {dayjs(date).format('ddd')} <br /> {dayjs(date).format('MM/DD')}
             </div>
 
-            {day.hours.map(item => {
+            {day.hours.map((item, index) => {
                 return <input
+                    key={index}
                     value={item.hours ? item.hours : ''}
                     className='border p-1 text-center'
                     type='number'
-                    onChange={event => updateHour(event.target.value, 'hours')}
+                    onChange={event => updateHour(event.target.value, item.chargeCodeName)}
                 />
             })}
-            
-            <input
-                value={day.pto ? day.pto : ''}
-                className='border p-1 text-center'
-                type='number'
-                onChange={event => updatePto(event.target.value, 'pto')}
-            /> 
         </div>
         
     )

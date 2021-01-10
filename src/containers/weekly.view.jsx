@@ -32,7 +32,7 @@ const WeeklyView = () => {
         selectedWorkWeek,
         availableWorkWeeks, 
     } = useSelector(state => state);
-    const [showCreateWeek, setShowCreateWeek] = useState(false);
+    const [showCreateWeek, setShowCreateWeek] = useState(true);
     
     useEffect(() => {
         Promise.all([
@@ -70,37 +70,38 @@ const WeeklyView = () => {
         })
     } 
 
-    const getTotalHours = () => {
+    const getTotalHours = chargeCodeName => {
         return editWorkWeek.data.reduce((acc, currValue) => {
-            return acc + currValue.hours
+            let totalDayHours = 0;
+            if(!currValue.hours) return;
+            for(let chargeCode in currValue.hours) {
+                if(chargeCode === chargeCodeName) {
+                    totalDayHours = totalDayHours + chargeCode.hours
+                }  
+            }
+            return acc + totalDayHours;
         }, 0)
-    };
-
-    const getTotalPto = () => {
-        return editWorkWeek.data.reduce((acc, curr) => acc + curr.pto, 0)
     };
 
     const displayWeek = () => {
         if(editWorkWeek === null) return;
+        const { data } = editWorkWeek;
         
         return <div className='d-flex mt-3 p-3'>
-            <div className='flex-column' style={{fontSize: 12, height: 50, width: 75}}>
+            <div className='flex-column' style={{fontSize: 12, height: 50, width: 100}}>
                 <div className='border p-1' style={{height: 50}}>Date</div>
-                {editWorkWeek.data[0].hours.map(item => {
-                    return <div className='border p-1'>{item.chargeCodeName}</div>
+                {data[0].hours.map((item, index) => {
+                    return <div key={index} className='border p-1'>{item.chargeCodeName}</div>
                 })}
             </div>
-            {editWorkWeek.data.map((day, index) => {
-                return <TimeInputField key={index} date={day.date} day={day} />
+            {data.map((day, index) => {
+                return <TimeInputField key={index} day={day} />
             })}
             <div className='flex-column' style={{fontSize: 12}}>
                 <div className='border p-1' style={{height: 50}}>Total</div>
-                <div className='border p-1'>{getTotalHours()}</div>
-                <div className='border p-1'>{getTotalPto()}</div>
-            </div>
-            <div className='flex-column' style={{fontSize: 12}}>
-                <div className='border p-1' style={{height: 50}}>Remaining Hours</div>
-                <div className='border p-1 align-items-stretch'>{40 - getTotalHours() - getTotalPto()}</div>
+                {data[0].hours.map((item, index) => {
+                    return <div key={index} className='border p-1'>{getTotalHours(item.chargeCode)}</div>
+                })}
             </div>
         </div>;
     };
@@ -140,75 +141,8 @@ const WeeklyView = () => {
         )
     };
 
-    // const chargeCodeDropdown = () => {
-
-    //     return <>
-    //         <select className='form-control mt-2' onChange={e => setSelectedChargeCode(e.target.value)}>
-    //             <option key='00' value='custom'>Custom</option>
-    //             {chargeCodes.map((code, index) => {
-    //                 const { name } = code;
-    //                 return <option key={index} value={name}>{name}</option>
-    //             })}
-    //         </select>
-    //     </>
-    // };
-
-    // const displayEditChargeCodes = () => {
-    //     if(!editChargeCodeList) return;
-
-    //     return editChargeCodeList.map((code, index) => {
-    //         //console.log(code);
-    //         if(code === null || code === 'custom') {
-    //             return <div key={index} className='d-flex mt-2'>
-    //                 <input
-    //                     type='text'
-    //                     onChange={event => console.log(event.target.value)}
-    //                 />
-    //                 <button>X</button>
-    //             </div>
-    //         }
-    //         return <div key={index} className='d-flex mt-2'>
-    //             <input value={code} disabled />
-    //             <button onClick={() => removeChargeCode(code)}>X</button>
-    //         </div>
-    //     })
-    // };
-
-    // const removeChargeCode = chargeCodeName => {
-    //     //console.log(index);
-    //     const newList = editChargeCodeList.filter(item => item !== chargeCodeName)
-    //     setEditChargeCodeList(newList);
-    // };
-
-    // const addEditChargecode = chargeCode => {
-    //     console.log(chargeCode);
-    //     setEditChargeCodeList([...editChargeCodeList, chargeCode]);
-    //     console.log(editChargeCodeList);
-    // };
-
     const displayCreateWeek = () => {
         return <CreateNewWeek />
-        // return <div className='p-4 border-bottom mb-4'>
-        //     <label>Start Date: </label>
-        //     <div className='d-flex flex-column'>
-        //         <input
-        //             type='date'
-        //             value={selectedDate}
-        //             onChange={value => setSelectedDate(value.target.value)}
-        //             className='ml-2'
-        //             />
-        //         <div className='mt-2'>Add Charge Code:</div>
-        //         <div className='d-flex'>
-        //             {chargeCodeDropdown()}
-        //             <button className='px-4 ml-3' onClick={() => addEditChargecode(selectedChargeCode)}>Add</button>
-        //         </div>
-        //         {editChargeCodeList && displayEditChargeCodes()}
-                
-        //     </div> 
-
-        //     <button onClick={onCreate} className='mx-2'>Create</button>
-        //     <button className='m-2' onClick={onSave}>Save</button>
-        // </div>
     }
 
     return (

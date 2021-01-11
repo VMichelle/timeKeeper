@@ -2,14 +2,10 @@ import * as firebase from "firebase/app";
 import {
     setAvailableWeeks
 } from '../reducers/reducer';
-import { firebaseConfig } from '../config';
+//import { firebaseConfig } from '../config';
 
 export const fetchWeeks = () => {
     return dispatch => {
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        };
-
         const db = firebase.firestore();
         db.collection("timeKeeper")
             .onSnapshot(querySnapshot => {

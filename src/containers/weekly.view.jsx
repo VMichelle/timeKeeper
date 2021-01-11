@@ -2,13 +2,12 @@
 import React, {useState, useEffect} from 'react';
 import TimeInputField from '../components/time.input.field';
 import * as dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat'
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import * as firebase from "firebase/app";
 import { firebaseConfig } from '../config';
 import { useSelector, useDispatch } from 'react-redux';
 import {
     setEditWeek,
-    setAvailableWeeks,
     setSelectedWeek,
     setChargeCodes,
 } from '../reducers/reducer';

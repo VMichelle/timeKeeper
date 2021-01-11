@@ -16,12 +16,10 @@ const CreateNewWeek = () => {
         firebase.initializeApp(firebaseConfig);
     };
 
-    require("firebase/firestore");
-    const db = firebase.firestore();
     dayjs.extend(localizedFormat);
 
     const date = useSelector(state => state.currentDay);
-    const {availableWorkWeeks, chargeCodes, editWorkWeek} = useSelector(state => state);
+    const {availableWorkWeeks, chargeCodes} = useSelector(state => state);
     const [selectedDate, setSelectedDate] = useState(dayjs(date).format('YYYY-MM-DD'));
     const [selectedChargeCode, setSelectedChargeCode] = useState(null);
     const [editChargeCodeList, setEditChargeCodeList] = useState([]);
@@ -114,6 +112,7 @@ const CreateNewWeek = () => {
     };
 
     const checkForExisitingWeek = date => {
+        if(!availableWorkWeeks) return false;
         const hasExistingWeek = availableWorkWeeks.find(week => {
             return dayjs(date).isSame(dayjs(week.startDate));
         })
@@ -151,8 +150,8 @@ const CreateNewWeek = () => {
                     </div>
                 </div>
             </div> 
-            {editChargeCodeList && displayEditChargeCodes()}
         </div> 
+        {editChargeCodeList && displayEditChargeCodes()}
         <Button onClick={onCreate} className='mx-2'>Create</Button>
         <Button className='m-2' onClick={onCancel}>Cancel</Button>
     </div>

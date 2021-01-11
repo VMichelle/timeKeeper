@@ -14,6 +14,7 @@ import {
 } from '../reducers/reducer';
 import CreateNewWeek from './create.new.week';
 import { Button } from 'react-bootstrap';
+import * as actions from './actions';
 
 const WeeklyView = () => {
     const dispatch = useDispatch();
@@ -29,36 +30,14 @@ const WeeklyView = () => {
     const date = useSelector(state => state.currentDay);
     const editWorkWeek = useSelector(state => state.editWorkWeek);
     const {
-        selectedWorkWeek,
         availableWorkWeeks, 
     } = useSelector(state => state);
-    const [showCreateWeek, setShowCreateWeek] = useState(true);
+    const [showCreateWeek, setShowCreateWeek] = useState(false);
     
     useEffect(() => {
-        Promise.all([
-            fetchWeeks(),
-            fetchChargecodes()
-        ])
-    }, [])
-
-    const fetchWeeks = async () => {
-        try {
-            return new Promise(resolve => {
-                db.collection("timeKeeper")
-                    .onSnapshot(querySnapshot => {
-                        let availWeeks = [];
-
-                        querySnapshot.forEach(doc => availWeeks.push(doc.data()));
-                        availWeeks.sort((a, b) => a.startDate - b.startDate);
-                        dispatch(setAvailableWeeks(availWeeks));
-                        resolve(true);
-                    });
-            });
-        } catch (err) {
-            console.log(err);
-        }
-        
-    };
+        dispatch(actions.fetchWeeks());
+        fetchChargecodes();
+    }, [dispatch])
 
    const fetchChargecodes = () => {
         db.collection("chargeCodes")
@@ -102,10 +81,6 @@ const WeeklyView = () => {
             </div>
         </div>;
     };
-
-    // const displaySelectedWeek = () => {
-    //     if(selectedWorkWeek === null) return;
-    // };
 
     const getSelectedWeek = selectedStartDate => {
         if(selectedStartDate == 'resetToDefault') {

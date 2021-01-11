@@ -4,12 +4,22 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import reducer from './reducers/reducer';
+import thunk from 'redux-thunk';
+
+//const devTools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
+let middleware = [thunk];
+let composeEnhancers = compose;
+composeEnhancers = require('redux-devtools-extension').composeWithDevTools;
+
+const enhancers = composeEnhancers(
+  applyMiddleware(...middleware)
+);
 
 const store = createStore(
   reducer, /* preloadedState, */
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  enhancers
 );
 
 ReactDOM.render(

@@ -69,19 +69,9 @@ const CreateNewWeek = () => {
         })
     };
 
-    const onSave = () => {
-        const docName = dayjs(selectedDate).format('MMDDYYYY');
-
-        db.collection('timeKeeper').doc(docName).set({
-            ...editWorkWeek
-        }, {merge: true})
-        .then(function() {
-            alert("Document successfully written!");
-        })
-        .catch(function(error) {
-            console.error("Error writing document: ", error);
-        });
-    };
+    const onCancel = () => {
+        dispatch(setEditWeek(null))
+    }
 
     const onCreate = () => {          
         const hasExistingWeek = checkForExisitingWeek(selectedDate);
@@ -132,43 +122,40 @@ const CreateNewWeek = () => {
     };
 
     return <div className='p-4 border-bottom mb-4'>
-            <label>Start Date: </label>
+        <div className='d-flex'>
             <div className='d-flex flex-column mb-5'>
+            <label>Start Date</label>
                 <input
                     type='date'
                     value={selectedDate}
                     onChange={value => setSelectedDate(value.target.value)}
-                    className='ml-2'
+                    className='p-1'
                     />
-
                 <div className='d-flex flex-row pt-2 pb-2'>
                     <div className='d-flex flex-column'>
-                        <div className='mt-2'>Existing Charge Code:</div>
+                        <div className='mt-2'>Charge Codes</div>
                         <div className='d-flex flex-row'>
                             {chargeCodeDropdown()}
-                            <button className='px-3 ml-3' onClick={() => addEditChargecode(selectedChargeCode)}>Add</button>
+                            <Button className='px-3 ml-3' onClick={() => addEditChargecode(selectedChargeCode)}>Add</Button>
                         </div>
                     </div>
-                       
                     <div className='ml-4 d-flex flex-column'>
-                        <div className='mt-2'>Add New Charge Code:</div>
+                        <div className='mt-2'>Add New Charge Code</div>
                         <div className='d-flex flex-row'>
                             <input type='text' 
                                 value={customeCode}
                                 onChange={e => setCustomCode(e.target.value)}
                             />
-                            <button className='px-4 ml-3' onClick={() => addEditChargecode(customeCode)}>Add</button>
+                            <Button className='px-4 ml-3' onClick={() => addEditChargecode(customeCode)}>Add</Button>
                         </div>
                     </div>
-                    
-                    
-                </div> 
-                {editChargeCodeList && displayEditChargeCodes()}
+                </div>
             </div> 
-
-            <button onClick={onCreate} className='mx-2'>Create</button>
-            <button className='m-2' onClick={onSave}>Save</button>
-        </div>
+            {editChargeCodeList && displayEditChargeCodes()}
+        </div> 
+        <Button onClick={onCreate} className='mx-2'>Create</Button>
+        <Button className='m-2' onClick={onCancel}>Cancel</Button>
+    </div>
 }
 
 export default CreateNewWeek;

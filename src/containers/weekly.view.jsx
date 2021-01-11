@@ -11,9 +11,9 @@ import {
     setAvailableWeeks,
     setSelectedWeek,
     setChargeCodes,
-    //setEditChargeCodes
 } from '../reducers/reducer';
 import CreateNewWeek from './create.new.week';
+import { Button } from 'react-bootstrap';
 
 const WeeklyView = () => {
     const dispatch = useDispatch();
@@ -70,15 +70,12 @@ const WeeklyView = () => {
         })
     } 
 
-    const getTotalHours = chargeCodeName => {
+    const getTotalHours = name => {
         return editWorkWeek.data.reduce((acc, currValue) => {
             let totalDayHours = 0;
-            if(!currValue.hours) return;
-            for(let chargeCode in currValue.hours) {
-                if(chargeCode === chargeCodeName) {
-                    totalDayHours = totalDayHours + chargeCode.hours
-                }  
-            }
+            const indexOfCode = currValue.hours.findIndex(_ => _.chargeCodeName === name);
+            totalDayHours = totalDayHours + parseFloat(currValue.hours[indexOfCode].hours)
+
             return acc + totalDayHours;
         }, 0)
     };
@@ -100,18 +97,17 @@ const WeeklyView = () => {
             <div className='flex-column' style={{fontSize: 12}}>
                 <div className='border p-1' style={{height: 50}}>Total</div>
                 {data[0].hours.map((item, index) => {
-                    return <div key={index} className='border p-1'>{getTotalHours(item.chargeCode)}</div>
+                    return <div key={index} className='border p-1'>{getTotalHours(item.chargeCodeName)}</div>
                 })}
             </div>
         </div>;
     };
 
-    const displaySelectedWeek = () => {
-        if(selectedWorkWeek === null) return;
-    };
+    // const displaySelectedWeek = () => {
+    //     if(selectedWorkWeek === null) return;
+    // };
 
     const getSelectedWeek = selectedStartDate => {
-        console.log(selectedStartDate);
         if(selectedStartDate == 'resetToDefault') {
             return dispatch(setEditWeek(null));
         }
@@ -128,9 +124,9 @@ const WeeklyView = () => {
     const displayDropDown = () => {
         return(
             <select 
-                className="form-control"
+                className="form-control mt-4"
                 onChange={e => getSelectedWeek(e.target.value)}
-            >
+                >
                 <option key='00' value='resetToDefault'>Select an existing work week</option>
                 {availableWorkWeeks.map((week, index) => {
                     const startDateFormatted = dayjs(week.startDate).format('L');
@@ -145,15 +141,34 @@ const WeeklyView = () => {
         return <CreateNewWeek />
     }
 
+    const onSave = () => {
+        const { startDate } = editWorkWeek;
+        const docName = dayjs(startDate).format('MMDDYYYY');
+
+        db.collection('timeKeeper').doc(docName).set({
+            ...editWorkWeek
+        }, {merge: true})
+        .then(function() {
+            alert("Update Saved");
+        })
+        .catch(function(error) {
+            console.error("Error writing document: ", error);
+        });
+    };
+
     return (
         <div className='p-3 d-flex flex-column'>
             <div>Today: {dayjs(date).format('L').toString()}</div>
-            <button onClick={() => setShowCreateWeek(!showCreateWeek)} className='mb-4'>Create New Week</button>
+            <Button onClick={() => setShowCreateWeek(!showCreateWeek)}>Create New Week</Button>
             {showCreateWeek && displayCreateWeek()}
 
-            <div>{availableWorkWeeks && displayDropDown()}</div>            
+            <div>{availableWorkWeeks && !showCreateWeek && displayDropDown()}</div>            
             {displayWeek()}
-            {displaySelectedWeek()}
+            {editWorkWeek !== null &&
+                <div>
+                    <Button className='m-3' onClick={onSave}>Save</Button>
+                </div>
+            }
         </div>
     )
 }

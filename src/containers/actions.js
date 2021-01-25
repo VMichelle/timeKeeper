@@ -1,8 +1,10 @@
 import * as firebase from "firebase/app";
 import {
-    setAvailableWeeks
+    setAvailableWeeks,
+    setChargeCodes,
+    setSelectedChargeCode
 } from '../reducers/reducer';
-//import { firebaseConfig } from '../config';
+import * as dayjs from 'dayjs';
 
 export const fetchWeeks = () => {
     return dispatch => {
@@ -12,9 +14,29 @@ export const fetchWeeks = () => {
                 let availWeeks = [];
 
                 querySnapshot.forEach(doc => availWeeks.push(doc.data()));
-                availWeeks.sort((a, b) => a.startDate - b.startDate);
+                availWeeks.sort((a, b) => dayjs(b.startDate) - dayjs(a.startDate));
 
                 dispatch(setAvailableWeeks(availWeeks));
             });
-    } 
+    };
 };
+
+export const fetchChargecodes = () => {
+    return dispatch => {
+        const db = firebase.firestore();
+        db.collection("chargeCodes")
+        .onSnapshot(querySnapshot => {
+            const listOfChargeCodes = [];
+
+            querySnapshot.forEach(code => listOfChargeCodes.push(code.data()));
+
+            dispatch(setChargeCodes(listOfChargeCodes));
+        })
+    };
+};
+
+export const updateSelectedChargeCode = chargeCode => {
+    return dispatch => {
+        dispatch(setSelectedChargeCode(chargeCode));
+    }
+}

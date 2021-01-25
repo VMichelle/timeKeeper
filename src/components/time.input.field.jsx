@@ -13,7 +13,13 @@ const TimeInputField = props => {
     const { date } = day;
 
     const updateHour = (value, inputType) => {
-        dispatch(updateHours({date: date, type: inputType, inputHour: value}))
+        let inputValue = value;
+
+        if(value < 0 || value === '') {
+            inputValue = 0;
+        };
+
+        dispatch(updateHours({date: date, type: inputType, inputHour: +inputValue}))
     };
 
     return (

@@ -29,7 +29,8 @@ const WeeklyView = () => {
     const date = useSelector(state => state.currentDay);
     const editWorkWeek = useSelector(state => state.editWorkWeek);
     const {
-        availableWorkWeeks, 
+        availableWorkWeeks,
+        chargeCodes
     } = useSelector(state => state);
     const [showCreateWeek, setShowCreateWeek] = useState(false);
     
@@ -46,7 +47,7 @@ const WeeklyView = () => {
             querySnapshot.forEach(code => listOfChargeCodes.push(code.data()));
             dispatch(setChargeCodes(listOfChargeCodes));
         })
-    } 
+    };
 
     const getTotalHours = name => {
         return editWorkWeek.data.reduce((acc, currValue) => {
@@ -118,6 +119,7 @@ const WeeklyView = () => {
     const onSave = () => {
         const { startDate } = editWorkWeek;
         const docName = dayjs(startDate).format('MMDDYYYY');
+        saveNewChargeCodes();
 
         db.collection('timeKeeper').doc(docName).set({
             ...editWorkWeek
@@ -128,6 +130,33 @@ const WeeklyView = () => {
         .catch(function(error) {
             console.error("Error writing document: ", error);
         });
+    };
+
+    const saveNewChargeCodes = () => {
+        const [firstEntry] = editWorkWeek?.data;
+        const editChargeCodeList = firstEntry.hours.map(entry => entry.chargeCodeName);
+        const currentCodeList  = chargeCodes.map(code => code.name);
+        let newCodes = [];
+        
+        for (const code of editChargeCodeList) {
+            const hasCode = currentCodeList.includes(code);
+            
+            if(!hasCode) {
+                newCodes.push(code);
+            }
+        };
+
+        if(newCodes.length > 0) {
+            newCodes.forEach(code => {
+                db.collection('chargeCodes').doc().set({
+                    name: code,
+                    userId: 101
+                })
+                .catch(error => {
+                    console.log(error)
+                });
+            })  
+        }
     };
 
     return (

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import * as firebase from "firebase/app";
+import firebase from "firebase";
 import { firebaseConfig } from '../config';
 import { useSelector, useDispatch } from 'react-redux';
 import * as actions from './actions';
@@ -14,7 +14,8 @@ const Report = () => {
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     };
-    require("firebase/firestore");
+    //require("firebase/firestore");
+    
 
     const { availableWorkWeeks, chargeCodes } = useSelector(state => state);
 

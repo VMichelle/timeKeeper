@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import WeeklyView from './containers/weekly.view';
 import Report from './containers/report';
+import SignInScreen from './containers/signin';
 import {
   BrowserRouter as Router,
   Switch,
@@ -16,6 +17,9 @@ function App() {
       <div>
         <Nav defaultActiveKey='/edit'>
           <NavItem>
+            <NavLink href='/signin' eventKey='signin'>Signin</NavLink>
+          </NavItem>
+          <NavItem>
             <NavLink href='/edit' eventKey='report-2'>Edit/Create</NavLink>
           </NavItem>
           <NavItem>
@@ -25,6 +29,10 @@ function App() {
       </div>
 
       <Switch>
+        <Route path='/signin'>
+          <SignInScreen />
+        </Route>
+
         <Route path='/edit'>
           <WeeklyView />
         </Route>

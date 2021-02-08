@@ -22,9 +22,9 @@ const ReportTableRow = ({ week }) => {
         return data.reduce((acc, currValue) => {
             let totalDayHours = 0;
             const total = currValue.hours.reduce((acc, curr) => {
-                if(selectedChargeCode && curr.chargeCodeName !== selectedChargeCode) {
-                    return acc + 0;
-                }
+                // if(selectedChargeCode && curr.chargeCodeName !== selectedChargeCode) {
+                //     return acc + 0;
+                // }
 
                 return acc + parseFloat(curr.hours);
             }, 0)

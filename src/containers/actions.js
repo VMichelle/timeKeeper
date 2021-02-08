@@ -1,4 +1,4 @@
-import * as firebase from "firebase/app";
+import { firestore } from 'firebase';
 import {
     setAvailableWeeks,
     setChargeCodes,
@@ -8,7 +8,7 @@ import * as dayjs from 'dayjs';
 
 export const fetchWeeks = () => {
     return dispatch => {
-        const db = firebase.firestore();
+        const db = firestore();
         db.collection("timeKeeper")
             .onSnapshot(querySnapshot => {
                 let availWeeks = [];
@@ -23,7 +23,7 @@ export const fetchWeeks = () => {
 
 export const fetchChargecodes = () => {
     return dispatch => {
-        const db = firebase.firestore();
+        const db = firestore();
         db.collection("chargeCodes")
         .onSnapshot(querySnapshot => {
             const listOfChargeCodes = [];

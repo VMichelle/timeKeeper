@@ -12,6 +12,8 @@ import { Nav, NavItem, NavLink } from 'react-bootstrap'
 
 
 function App() {
+
+
   return (
     <Router>
       <div>
@@ -41,8 +43,9 @@ function App() {
           <Report />
         </Route>
       </Switch>
+
     </Router>
   );
-}
+};
 
 export default App;

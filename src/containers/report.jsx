@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import firebase from "firebase";
+import React, { useEffect } from 'react';
+import firebase from 'firebase/';
 import { firebaseConfig } from '../config';
 import { useSelector, useDispatch } from 'react-redux';
 import * as actions from './actions';
-import {Table} from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import * as dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import ReportTableRow from './report.table.row';
@@ -11,11 +11,10 @@ import ReportTableRow from './report.table.row';
 const Report = () => {
     const dispatch = useDispatch();
     dayjs.extend(localizedFormat);
+    
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     };
-    //require("firebase/firestore");
-    
 
     const { availableWorkWeeks, chargeCodes } = useSelector(state => state);
 
@@ -26,7 +25,7 @@ const Report = () => {
         } 
     }, [availableWorkWeeks, dispatch]);
 
-    const [selectedChargeCode, setSelectedChargeCode] = useState(null);
+    //const [selectedChargeCode, setSelectedChargeCode] = useState(null);
 
     const displayReport = () => {
         if(!availableWorkWeeks) return;
@@ -42,7 +41,7 @@ const Report = () => {
             codeName = null;
         }
 
-        setSelectedChargeCode(codeName);
+        //setSelectedChargeCode(codeName);
         dispatch(actions.updateSelectedChargeCode(codeName));
     };
 

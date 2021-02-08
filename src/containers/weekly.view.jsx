@@ -3,7 +3,8 @@ import React, {useState, useEffect} from 'react';
 import TimeInputField from '../components/time.input.field';
 import * as dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-import * as firebase from "firebase/app";
+import firebase from 'firebase';
+import { firestore } from 'firebase'
 import { firebaseConfig } from '../config';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -23,7 +24,7 @@ const WeeklyView = () => {
     };
     
     require("firebase/firestore");
-    const db = firebase.firestore();
+    const db = firestore();
     dayjs.extend(localizedFormat);
 
     const date = useSelector(state => state.currentDay);

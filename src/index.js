@@ -8,7 +8,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import reducer from './reducers/reducer';
 import thunk from 'redux-thunk';
 
-//const devTools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
 let middleware = [thunk];
 let composeEnhancers = compose;
 composeEnhancers = require('redux-devtools-extension').composeWithDevTools;
